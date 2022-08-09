@@ -6,6 +6,8 @@ import ContainerComponent from "./components/Container";
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import BorderColorIcon from '@mui/icons-material/BorderColor';
+import IconButton from '@mui/material/IconButton';
 
 const App = () => {
   const lsData = localStorage.getItem('populix-survey-items')
@@ -50,13 +52,16 @@ const App = () => {
                             snapshot.isDragging,
                             provided.draggableProps.style
                           )}
+                          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                         >
                           {item.question}
+                          <IconButton onClick={() => window.location.href = `/edit#${item.id}`} color="primary" aria-label="delete">
+                            <BorderColorIcon sx={{ fontSize: 18 }} />
+                          </IconButton>
                         </Box>
                       )}
                     </Draggable>
                   ))}
-                  {provided.placeholder}
                 </Box>
               )}
             </Droppable>

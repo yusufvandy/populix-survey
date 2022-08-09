@@ -19,17 +19,34 @@ export default function Form() {
     const handleSubmit = (event) => {
         event.preventDefault();
         let lsData = localStorage.getItem('populix-survey-items')
-        if (lsData) {
-            lsData = JSON.parse(lsData)
-            lsData.push(form)
+
+        if (lsData) lsData = JSON.parse(lsData)
+
+        // if add page
+        if (lsData && !isEditPage()) lsData.push(form)
+
+        // if edit page
+        if (lsData && isEditPage()) {
+            const idx = lsData.findIndex(el => el.id === form.id)
+            lsData[idx] = form
         }
+
         localStorage.setItem("populix-survey-items", JSON.stringify(lsData ? lsData : [form]))
         setIsSuccess(true)
     };
 
+    const handleDelete = () => {
+        let lsData = JSON.parse(localStorage.getItem('populix-survey-items'))
+        const idx = lsData.findIndex(el => el.id === form.id)
+        lsData.splice(idx, 1)
+        localStorage.setItem("populix-survey-items", JSON.stringify(lsData ? lsData : [form]))
+        setIsSuccess(true)
+    }
+
     const handleChangeForm = (e, idx) => {
         let newForm = { ...form }
         newForm.respondent[idx][e.target.name] = e.target.value
+        setForm(newForm)
     }
 
     const addAnswer = () => {
@@ -51,8 +68,19 @@ export default function Form() {
     React.useEffect(() => {
         if (isSuccess) setTimeout(() => {
             window.location.href = `/`
-        }, 2000);
+        }, 1500);
     }, [isSuccess])
+
+    // get data from edit
+    React.useEffect(() => {
+        let lsData = localStorage.getItem('populix-survey-items')
+        if (isEditPage()) {
+            let id = window.location.hash.substring(1);
+            lsData = JSON.parse(lsData)
+            const data = lsData.find(el => el.id === parseInt(id))
+            setForm(data)
+        }
+    }, [])
 
     return (
         <Box sx={{ py: 8 }}>
@@ -80,7 +108,7 @@ export default function Form() {
                     fullWidth
                     label="Question"
                     name="question"
-                    defaultValue={form.question}
+                    value={form.question}
                     onChange={(e) => setForm({ ...form, question: e.target.value })}
                 />
                 {
@@ -93,7 +121,7 @@ export default function Form() {
                                     required
                                     fullWidth
                                     label="Answer"
-                                    defaultValue={form.respondent[idx].answer}
+                                    value={form.respondent[idx].answer}
                                     onChange={(e) => handleChangeForm(e, idx)}
                                 />
                             </Grid>
@@ -102,7 +130,7 @@ export default function Form() {
                                     <InputLabel id="rule-label">Rule</InputLabel>
                                     <Select
                                         labelId="rule-label"
-                                        defaultValue={form.respondent[idx].rule}
+                                        value={form.respondent[idx].rule}
                                         name="rule"
                                         label="Rule"
                                         onChange={(e) => handleChangeForm(e, idx)}
@@ -128,6 +156,7 @@ export default function Form() {
                         {
                             isEditPage() &&
                             <Button
+                                onClick={() => handleDelete()}
                                 variant="outlined"
                                 color="error"
                             >

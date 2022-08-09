@@ -11,3 +11,13 @@ export const getItems = count =>
         id: `item-${k}`,
         content: `item ${k}`
     }));
+
+export const getItemStyle = (isDragging, draggableStyle) => ({
+    userSelect: "none",
+    padding: 15,
+    marginBottom: 15,
+    borderRadius: 5,
+    border: isDragging ? '1px #7ca9d6 solid' : '1px #bbb solid',
+    background: isDragging ? "#f3f7fa" : "white",
+    ...draggableStyle
+});

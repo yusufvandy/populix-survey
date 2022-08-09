@@ -1,33 +1,15 @@
 import React from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { reorder } from "./helpers";
+import { reorder, getItemStyle, getItems } from "./helpers";
 import Form from "./components/Form";
-
-// fake data generator
-const getItems = count =>
-  Array.from({ length: count }, (v, k) => k).map(k => ({
-    id: `item-${k}`,
-    content: `item ${k}`
-  }));
-
-const grid = 8;
-
-const getItemStyle = (isDragging, draggableStyle) => ({
-  userSelect: "none",
-  padding: grid * 2,
-  margin: `0 0 ${grid}px 0`,
-  background: isDragging ? "lightgreen" : "grey",
-  ...draggableStyle
-});
-
-const getListStyle = isDraggingOver => ({
-  background: isDraggingOver ? "lightblue" : "lightgrey",
-  padding: grid,
-  width: 250
-});
+import ContainerComponent from "./components/Container";
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 
 const App = () => {
-  const [items, setItems] = React.useState(getItems(10));
+  const lsData = localStorage.getItem('populix-survey-items')
+  const [items, setItems] = React.useState(!lsData ? [] : JSON.parse(lsData));
 
   const onDragEnd = ({ destination, source }) => {
     if (!destination) return;
@@ -36,42 +18,64 @@ const App = () => {
   };
 
   const Index = () => (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="droppable">
-        {(provided, snapshot) => (
-          <div
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-            style={getListStyle(snapshot.isDraggingOver)}
-          >
-            {items.map((item, index) => (
-              <Draggable key={item.id} draggableId={item.id} index={index}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    style={getItemStyle(
-                      snapshot.isDragging,
-                      provided.draggableProps.style
-                    )}
-                  >
-                    {item.content}
-                  </div>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext>
+    <>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 8 }}>
+        <Typography component="h1" variant="h5">
+          Question List
+        </Typography>
+        <Button
+          onClick={() => window.location.href = `/add`}
+          variant='outlined'>
+          Add Question
+        </Button>
+      </Box>
+      {
+        items && items.length ?
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="droppable">
+              {(provided) => (
+                <Box
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  sx={{ mt: 4, minHeight: 'calc(100vh - 134px)', pb: 5 }}
+                >
+                  {items.map((item, index) => (
+                    <Draggable key={item.id} draggableId={`${item.id}`} index={index}>
+                      {(provided, snapshot) => (
+                        <Box
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          style={getItemStyle(
+                            snapshot.isDragging,
+                            provided.draggableProps.style
+                          )}
+                        >
+                          {item.question}
+                        </Box>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </Box>
+              )}
+            </Droppable>
+          </DragDropContext>
+          :
+          <Typography
+            sx={{ mt: 10, textAlign: 'center', minHeight: 'calc(100vh - 134px)' }}>
+            You don't have any question list. Create new one!
+          </Typography>
+      }
+    </>
   )
 
-  console.log(window.location)
-
-  if (window.location.pathname === '/add' || window.location.pathname === '/edit') return <Form />
-  return <Index />
+  if (window.location.pathname === '/add' || window.location.pathname === '/edit') return <ContainerComponent><Form /></ContainerComponent>
+  return (
+    <ContainerComponent>
+      <Index />
+    </ContainerComponent>
+  )
 }
 
 export default App

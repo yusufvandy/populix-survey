@@ -66,10 +66,11 @@ const App = () => {
         )}
       </Droppable>
     </DragDropContext>
-
   )
 
-  if (window.location.pathname === '/add') return <Form />
+  console.log(window.location)
+
+  if (window.location.pathname === '/add' || window.location.pathname === '/edit') return <Form />
   return <Index />
 }
 

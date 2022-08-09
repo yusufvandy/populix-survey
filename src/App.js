@@ -19,6 +19,11 @@ const App = () => {
     setItems(newItems);
   };
 
+  // set to localstorage after dragging
+  React.useEffect(() => {
+    localStorage.setItem("populix-survey-items", JSON.stringify(items))
+  }, items)
+
   const Index = () => (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 8 }}>
@@ -62,6 +67,7 @@ const App = () => {
                       )}
                     </Draggable>
                   ))}
+                  {provided.placeholder}
                 </Box>
               )}
             </Droppable>
